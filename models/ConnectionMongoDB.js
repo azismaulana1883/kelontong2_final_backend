@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const url = "mongodb+srv://admin:admin@cluster0.mborrla.mongodb.net/"
+const url = "mongodb+srv://kelontong:kelontong@cluster0.fdin0xy.mongodb.net/?retryWrites=true&w=majority"
 
 const ConnectionDB = async () => {
     try {
