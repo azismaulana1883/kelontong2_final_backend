@@ -9,9 +9,21 @@ app.use(cors())
 app.use(morgan('dev'))
 app.use(express.urlencoded({ extended: true }))
 
+app.get('/', (req,res) => {
+    res.send({
+        message : "Succes You Are in Main Routing",
+        StatusText : "Success",
+        StatusCode : 200
+    })
+})
+
 app.listen(port, function() {
     console.log(`Server is running in port : ${ port }`)
 })
+
+// Routes
+const Routes = require('./routes/index')
+app.use('/api/v1', Routes)
 
 const ConnectionMongoDB = require('./models/ConnectionMongoDB')
 ConnectionMongoDB()
