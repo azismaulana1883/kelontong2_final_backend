@@ -39,6 +39,16 @@ function generateResetPasswordExpiration() {
 async function resetPassword(req, res, next) {
     const { email, token, newPassword } = req.body;
 
+    // Validasi password
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>0-9]).{8,12}$/;
+    if (!passwordRegex.test(newPassword)) {
+        return res.status(400).send({
+            message: 'Password baru harus memiliki panjang 8 dan maksimal 12 serta memiliki 1 simbol 1 huruf besar didalamnya',
+            success: false,
+            statusCode: 400
+        });
+    }
+
     try {
         let user = await UserModelsMongo.findOne({ email: email, resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
 
@@ -184,6 +194,7 @@ async function Login(req, res, next) {
                     expired_date: expiredToken,
                     user: getUser[0].email,
                     id: getUser[0].id,
+                    alamat: getUser[0].alamat,
                     isVerified: getUser[0].isVerified,
                     role: getUser[0].role
                 };
