@@ -32,6 +32,16 @@ function sendVerificationEmail(email, verificationToken) {
 async function Register(req, res, next) {
     const { name, email, password, phone_number, alamat, role } = req.body;
 
+    // Validasi password
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>0-9]).{8,12}$/;
+    if (!passwordRegex.test(password)) {
+        return res.status(400).send({
+            message: 'Password harus memiliki minimal panjang 8 dan maksimal 12, harus memiliki 1 huruf besar 1 simbol dan angka.',
+            success: false,
+            statusCode: 400
+        });
+    }
+
     try {
         let getUser = await UserModelsMongo.findOne({
             email: email
@@ -62,7 +72,7 @@ async function Register(req, res, next) {
                 email: createdData.email,
                 phone_number: createdData.phone_number,
                 alamat: createdData.alamat,
-                verificationToken : createdData.verificationToken,
+                verificationToken: createdData.verificationToken,
                 role: createdData.role
             };
 
@@ -73,7 +83,7 @@ async function Register(req, res, next) {
                     statusCode: 400
                 });
             } else {
-                // kirim email saat user mendaftar
+                // Kirim email saat user mendaftar
                 sendVerificationEmail(email, dataPassingToDB.verificationToken);
 
                 res.send({
