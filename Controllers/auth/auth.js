@@ -5,6 +5,9 @@ const JWT = require('jsonwebtoken');
 const UserModelsMongo = require('../../models/scheme/User');
 
 // Konfigurasi transporter untuk Nodemailer
+const JWT = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+const UserModelsMongo = require('../../models/scheme/User');
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -19,6 +22,13 @@ function sendResetPasswordEmail(email, resetPasswordToken) {
         to: email,
         subject: 'Reset Password',
         text: `Click the following link to reset your password: http://localhost:5173/reset-password?email=${email}&token=${resetPasswordToken}`
+
+function sendVerificationEmail(email, verificationToken) {
+    const mailOptions = {
+        from: 'indra.kurniawan1433@gmail.com',
+        to: email,
+        subject: 'Email Verification',
+        text: `Click the following link to verify your email: http://localhost:7600/api/v1/auth/verify?email=${email}&token=${verificationToken}`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -44,6 +54,19 @@ async function resetPassword(req, res, next) {
     if (!passwordRegex.test(newPassword)) {
         return res.status(400).send({
             message: 'Password baru harus memiliki panjang 8 dan maksimal 12 serta memiliki 1 simbol 1 huruf besar didalamnya',
+            console.log('Email sent: ' + info.response);
+        }
+    });
+}
+
+async function Register(req, res, next) {
+    const { name, email, password, phone_number, alamat, role } = req.body;
+
+    // Validasi password
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>0-9]).{8,12}$/;
+    if (!passwordRegex.test(password)) {
+        return res.status(400).send({
+            message: 'Password harus memiliki minimal panjang 8 dan maksimal 12, harus memiliki 1 huruf besar 1 simbol dan angka.',
             success: false,
             statusCode: 400
         });
@@ -115,11 +138,102 @@ async function forgotPassword(req, res, next) {
 
         res.status(200).send({
             message: 'Reset password email sent! Check your email for further instructions.',
+        let getUser = await UserModelsMongo.findOne({
+            email: email
+        });
+
+        if (getUser) {
+            res.status(400).send({
+                message: 'Data is exists, please create another one!',
+                success: false,
+                statusCode: 400
+            });
+        } else {
+            let dataPassingToDB = {
+                name: name,
+                password: CryptrNew.encrypt(password),
+                email: email,
+                phone_number: phone_number,
+                alamat: alamat,
+                role: role,
+                isVerified: false,
+                verificationToken: generateUniqueToken()
+            };
+
+            let createdData = await UserModelsMongo.create(dataPassingToDB);
+
+            const userConfig = {
+                name: createdData.name,
+                email: createdData.email,
+                phone_number: createdData.phone_number,
+                alamat: createdData.alamat,
+                verificationToken: createdData.verificationToken,
+                role: createdData.role
+            };
+
+            if (!createdData) {
+                res.status(400).send({
+                    message: 'Wrong username or password',
+                    success: false,
+                    statusCode: 400
+                });
+            } else {
+                // Kirim email saat user mendaftar
+                sendVerificationEmail(email, dataPassingToDB.verificationToken);
+
+                res.send({
+                    data: userConfig,
+                    message: 'Successfully created user data! Please check your email for verification.',
+                    success: true,
+                    statusCode: 201
+                });
+            }
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(400);
+    }
+}
+
+async function VerifyEmail(req, res, next) {
+    const { email, token } = req.query;
+
+    try {
+        let user = await UserModelsMongo.findOne({ email: email, verificationToken: token });
+
+        if (!user) {
+            console.error('Invalid verification token or email:', email, token);
+            return res.status(400).send({
+                message: 'Invalid verification token!',
+                success: false,
+                statusCode: 400
+            });
+        }
+
+        // Update isVerified menjadi true langsung saat tautan diklik
+        const updateResult = await UserModelsMongo.updateOne(
+            { email: email, verificationToken: token },
+            { $set: { isVerified: true }, $unset: { verificationToken: 1 } }
+        );
+
+        if (updateResult.modifiedCount !== 1) {
+            console.error('Failed to update isVerified:', email, token);
+            return res.status(500).send({
+                message: 'Failed to update isVerified!',
+                success: false,
+                statusCode: 500
+            });
+        }
+
+        console.log('Email verification successful:', email, token);
+        res.status(200).send({
+            message: 'Email verification successful!',
             success: true,
             statusCode: 200
         });
     } catch (error) {
         console.error('Error in forgotPassword:', error);
+        console.error('Error in VerifyEmail:', error);
         res.status(500).send({
             message: 'Internal Server Error',
             success: false,
@@ -128,8 +242,10 @@ async function forgotPassword(req, res, next) {
     }
 }
 
+
 // Fungsi untuk menghasilkan token reset password unik
 function generateResetPasswordToken() {
+function generateUniqueToken() {
     const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     let token = '';
 
@@ -221,4 +337,8 @@ module.exports = {
     forgotPassword,
     resetPassword,
     generateResetPasswordToken
+module.exports = {
+    Register,
+    VerifyEmail,
+    generateUniqueToken,
 };
