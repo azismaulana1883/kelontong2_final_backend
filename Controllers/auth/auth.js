@@ -320,6 +320,7 @@ async function Login(req, res, next) {
                     access_token: createAccessToken, // access token expired 1 day
                     refresh_token: createAccessToken, // refresh token expired 1 month
                     expired_date: expiredToken,
+                    name: getUser[0].name,
                     user: getUser[0].email,
                     alamat: getUser[0].alamat,
                     id: getUser[0].id,
