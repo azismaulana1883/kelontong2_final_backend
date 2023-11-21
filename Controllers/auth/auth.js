@@ -1,13 +1,10 @@
 const Cryptr = require('cryptr');
 const CryptrNew = new Cryptr('secret-key-access');
-const nodemailer = require('nodemailer');
 const JWT = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 const UserModelsMongo = require('../../models/scheme/User');
 
 // Konfigurasi transporter untuk Nodemailer
-const JWT = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-const UserModelsMongo = require('../../models/scheme/User');
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -16,13 +13,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-function sendResetPasswordEmail(email, resetPasswordToken) {
-    const mailOptions = {
-        from: 'indra.kurniawan1433@gmail.com',
-        to: email,
-        subject: 'Reset Password',
-        text: `Click the following link to reset your password: http://localhost:5173/reset-password?email=${email}&token=${resetPasswordToken}`
-
+// Fungsi untuk mengirim email verifikasi
 function sendVerificationEmail(email, verificationToken) {
     const mailOptions = {
         from: 'indra.kurniawan1433@gmail.com',
@@ -35,17 +26,37 @@ function sendVerificationEmail(email, verificationToken) {
         if (error) {
             console.error(error);
         } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+}
+
+// Fungsi untuk mengirim email reset password
+function sendResetPasswordEmail(email, resetPasswordToken) {
+    const mailOptions = {
+        from: 'indra.kurniawan1433@gmail.com',
+        to: email,
+        subject: 'Reset Password',
+        text: `Click the following link to reset your password: http://localhost:5173/reset-password?email=${email}&token=${resetPasswordToken}`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error(error);
+        } else {
             console.log('Reset password email sent: ' + info.response);
         }
     });
 }
 
+// Fungsi untuk membuat waktu kedaluwarsa reset password
 function generateResetPasswordExpiration() {
     const expiration = new Date();
     expiration.setHours(expiration.getHours() + 1); // Set expiration time (e.g., 1 hour)
     return expiration;
 }
 
+// Fungsi untuk melakukan reset password
 async function resetPassword(req, res, next) {
     const { email, token, newPassword } = req.body;
 
@@ -54,19 +65,6 @@ async function resetPassword(req, res, next) {
     if (!passwordRegex.test(newPassword)) {
         return res.status(400).send({
             message: 'Password baru harus memiliki panjang 8 dan maksimal 12 serta memiliki 1 simbol 1 huruf besar didalamnya',
-            console.log('Email sent: ' + info.response);
-        }
-    });
-}
-
-async function Register(req, res, next) {
-    const { name, email, password, phone_number, alamat, role } = req.body;
-
-    // Validasi password
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>0-9]).{8,12}$/;
-    if (!passwordRegex.test(password)) {
-        return res.status(400).send({
-            message: 'Password harus memiliki minimal panjang 8 dan maksimal 12, harus memiliki 1 huruf besar 1 simbol dan angka.',
             success: false,
             statusCode: 400
         });
@@ -106,6 +104,8 @@ async function Register(req, res, next) {
     }
 }
 
+
+// Fungsi untuk melakukan forgot password
 async function forgotPassword(req, res, next) {
     const { email } = req.body;
 
@@ -138,6 +138,33 @@ async function forgotPassword(req, res, next) {
 
         res.status(200).send({
             message: 'Reset password email sent! Check your email for further instructions.',
+            success: true,
+            statusCode: 200
+        });
+    } catch (error) {
+        console.error('Error in forgotPassword:', error);
+        res.status(500).send({
+            message: 'Internal Server Error',
+            success: false,
+            statusCode: 500
+        });
+    }
+}
+
+async function Register(req, res, next) {
+    const { name, email, password, phone_number, alamat, role } = req.body;
+
+    // Validasi password
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>0-9]).{8,12}$/;
+    if (!passwordRegex.test(password)) {
+        return res.status(400).send({
+            message: 'Password harus memiliki minimal panjang 8 dan maksimal 12, harus memiliki 1 huruf besar 1 simbol dan angka.',
+            success: false,
+            statusCode: 400
+        });
+    }
+
+    try {
         let getUser = await UserModelsMongo.findOne({
             email: email
         });
@@ -195,6 +222,7 @@ async function forgotPassword(req, res, next) {
     }
 }
 
+
 async function VerifyEmail(req, res, next) {
     const { email, token } = req.query;
 
@@ -232,7 +260,6 @@ async function VerifyEmail(req, res, next) {
             statusCode: 200
         });
     } catch (error) {
-        console.error('Error in forgotPassword:', error);
         console.error('Error in VerifyEmail:', error);
         res.status(500).send({
             message: 'Internal Server Error',
@@ -240,21 +267,6 @@ async function VerifyEmail(req, res, next) {
             statusCode: 500
         });
     }
-}
-
-
-// Fungsi untuk menghasilkan token reset password unik
-function generateResetPasswordToken() {
-function generateUniqueToken() {
-    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    let token = '';
-
-    for (let i = 0; i < 32; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        token += characters[randomIndex];
-    }
-
-    return token;
 }
 
 async function Login(req, res, next) {
@@ -308,10 +320,9 @@ async function Login(req, res, next) {
                     access_token: createAccessToken, // access token expired 1 day
                     refresh_token: createAccessToken, // refresh token expired 1 month
                     expired_date: expiredToken,
-                    name: getUser[0].name,
                     user: getUser[0].email,
-                    id: getUser[0].id,
                     alamat: getUser[0].alamat,
+                    id: getUser[0].id,
                     isVerified: getUser[0].isVerified,
                     role: getUser[0].role
                 };
@@ -332,13 +343,38 @@ async function Login(req, res, next) {
 }
 
 
-module.exports = {
-    Login,
-    forgotPassword,
-    resetPassword,
-    generateResetPasswordToken
+// Fungsi untuk menghasilkan token verifikasi unik
+function generateUniqueToken() {
+    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    let token = '';
+
+    for (let i = 0; i < 32; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        token += characters[randomIndex];
+    }
+
+    return token;
+}
+
+// Fungsi untuk menghasilkan token reset password unik
+function generateResetPasswordToken() {
+    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    let token = '';
+
+    for (let i = 0; i < 32; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        token += characters[randomIndex];
+    }
+
+    return token;
+}
+
+
 module.exports = {
     Register,
     VerifyEmail,
+    Login,
     generateUniqueToken,
+    forgotPassword,
+    resetPassword,
 };
