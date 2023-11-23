@@ -121,7 +121,8 @@ async function forgotPassword(req, res, next) {
             });
         }
 
-        // Generate reset password token
+
+// Generate reset password token
         const resetPasswordToken = generateResetPasswordToken();
 
         // Set expiration time (e.g., 1 hour)
@@ -238,7 +239,8 @@ async function VerifyEmail(req, res, next) {
             });
         }
 
-        // Update isVerified menjadi true langsung saat tautan diklik
+
+// Update isVerified menjadi true langsung saat tautan diklik
         const updateResult = await UserModelsMongo.updateOne(
             { email: email, verificationToken: token },
             { $set: { isVerified: true }, $unset: { verificationToken: 1 } }
@@ -356,6 +358,7 @@ function generateUniqueToken() {
 
     return token;
 }
+
 
 // Fungsi untuk menghasilkan token reset password unik
 function generateResetPasswordToken() {
