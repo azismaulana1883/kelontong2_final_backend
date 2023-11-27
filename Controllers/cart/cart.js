@@ -1,19 +1,49 @@
 const Cart = require("../../models/scheme/Cart");
 
 const CartController = {
-    // Create: Menambahkan item baru ke Cart
+    // Menambahkan item baru ke Cart
     async addToCart(req, res) {
         try {
-            const { product_id, customer_id, store, qty, total } = req.body;
-            const cartItem = new Cart({ product_id, customer_id, store, qty, total });
-            await cartItem.save();
+            const {
+                product_id,
+                name,
+                image,
+                category,
+                price,
+                qty,
+                subtotal,
+                customer_id,
+                customer_name,
+                alamat,
+                total
+            } = req.body;
+
+            const newCartItem = {
+                products: [{
+                    product_id,
+                    name,
+                    image,
+                    category,
+                    price,
+                    qty,
+                    subtotal
+                }],
+                customer: {
+                    customer_id,
+                    name: customer_name,
+                    alamat
+                },
+                total
+            };
+
+            const cartItem = await Cart.create(newCartItem);
             res.status(201).json({ message: 'Item added to cart', data: cartItem });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
     },
 
-    // Read: Mendapatkan semua item dalam Cart
+    // Mendapatkan semua item dalam Cart
     async getAllItems(req, res) {
         try {
             const cartItems = await Cart.find();
@@ -23,7 +53,7 @@ const CartController = {
         }
     },
 
-    // Update: Mengubah item dalam Cart berdasarkan ID
+    // Mengubah item dalam Cart berdasarkan ID
     async updateCartItem(req, res) {
         try {
             const { id } = req.params;
@@ -34,7 +64,7 @@ const CartController = {
         }
     },
 
-    // Delete: Menghapus item dari Cart berdasarkan ID
+    // Menghapus item dari Cart berdasarkan ID
     async deleteCartItem(req, res) {
         try {
             const { id } = req.params;
