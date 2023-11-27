@@ -46,7 +46,7 @@ const CategoryController = {
     // Get a specific category with its subcategories
     async getCategoryWithSubcategories(req, res) {
         try {
-            const categoryId = req.params.categoryId;
+            const categoryId = req.params.id;
             const category = await Category.findById(categoryId).populate('subcategories');
             if (!category) {
                 return res.status(404).json({ message: 'Category not found' });
@@ -60,7 +60,7 @@ const CategoryController = {
     // Delete a category
     async deleteCategory(req, res) {
         try {
-            const categoryId = req.params.categoryId;
+            const categoryId = req.params.id;
             const category = await Category.findById(categoryId);
             if (!category) {
                 return res.status(404).json({ message: 'Category not found' });
@@ -76,7 +76,7 @@ const CategoryController = {
     // Delete a subcategory from a category
     async deleteSubcategory(req, res) {
         try {
-            const categoryId = req.params.categoryId;
+            const categoryId = req.params.id;
             const subcategoryId = req.params.subcategoryId;
 
             const category = await Category.findById(categoryId);
@@ -95,7 +95,7 @@ const CategoryController = {
     // Update a category
     async updateCategory(req, res) {
         try {
-            const categoryId = req.params.categoryId;
+            const categoryId = req.params.id;
             const { name } = req.body;
 
             const category = await Category.findByIdAndUpdate(categoryId, { name }, { new: true });
@@ -112,7 +112,7 @@ const CategoryController = {
     // Update a subcategory
     async updateSubcategory(req, res) {
         try {
-            const categoryId = req.params.categoryId;
+            const categoryId = req.params.id;
             const subcategoryId = req.params.subcategoryId;
             const { name } = req.body;
 
