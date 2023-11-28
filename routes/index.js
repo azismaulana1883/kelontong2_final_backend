@@ -13,4 +13,8 @@ routes.use('/products', productRoutes);
 const uploadRoutes = require('./upload/uploadRoutes');
 routes.use('/upload', uploadRoutes);
 
+//Route for penjualan
+const penjualanRoutes = require('./penjualan/index')
+routes.use('/penjualan', penjualanRoutes)
+
 module.exports=routes
