@@ -74,6 +74,61 @@ async function getDataTransaksi(req, res) {
   }
 }
 
+async function getDataBarangTerjual(req, res) {
+  try {
+    // Mendapatkan parameter bulan dan tahun dari query
+    const { year, month } = req.query;
+
+    // Menggunakan agregasi untuk menghitung data transaksi
+    const filteredData = orderDetailData
+      .filter(order => {
+        const orderDate = new Date(order.createdAt);
+        return (
+          (!year || orderDate.getFullYear() == year) &&
+          (!month || orderDate.getMonth() + 1 == month)
+        );
+      });
+
+    // Jika tidak ada data yang cocok, kirim respons "Data tidak ditemukan"
+    if (filteredData.length === 0) {
+      return res.status(200).send({ 
+         message: 'Data tidak ditemukan',
+         success: false,
+         statusCode: 200
+      });
+    }
+
+    const result = filteredData.map(order => ({
+      _id: order._id,
+      tanggal_transaksi: order.createdAt,
+      barang_terjual: order.products.map(product => ({
+        nama_barang: product.name,
+        kategori: product.category,
+        jumlah_terjual: product.qty,
+        total_penjualan_barang: product.qty * product.price
+      }))
+    }));
+
+    // Mengembalikan data barang terjual sebagai respons
+    res.status(200).send({
+        message: "Data barang terjual ditemukan",
+        success: true,
+        statusCode: 200,
+        data: result
+    });
+  } catch (error) {
+    // Menangani kesalahan dan memberikan respons yang sesuai
+    console.error(error);
+    res.status(500).send({ 
+      message: 'Terjadi kesalahan saat mengambil data barang terjual.',
+      success: false,
+      statusCode: 500,
+      error: error.message // Menyertakan pesan kesalahan spesifik jika tersedia
+    });
+  }
+}
+
 module.exports = {
   getDataTransaksi,
+  getDataBarangTerjual
 };

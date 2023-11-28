@@ -5,5 +5,6 @@ const penjualanController = require('../../Controllers/penjualan/penjualanContro
 
 // Definisi rute untuk mendapatkan data transaksi
 router.get('/data_transaksi', penjualanController.getDataTransaksi);
+router.get('/data_barang', penjualanController.getDataBarangTerjual);
 
 module.exports = router;
