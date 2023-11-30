@@ -1,19 +1,20 @@
 const express = require('express');
 const router = express.Router();
+const categoryController = require('../../Controllers/settings/categoryControllers');
 
-// Controller category
-const CategoryController = require('../../Controllers/settings/categoryControllers');
+// Endpoint untuk membuat kategori baru
+router.post('/', categoryController.createCategory);
 
-// Endpoint untuk kategori
-router.post('/', CategoryController.createCategory);
-router.get('/', CategoryController.getAllCategories);
+// Endpoint untuk mendapatkan semua kategori
+router.get('/', categoryController.getAllCategories);
 
-// Endpoint untuk kategori dengan subkategori
-router.get('/:id', CategoryController.getCategoryWithSubcategories);
-router.post('/:id/subcategories', CategoryController.createSubcategory);
-router.delete('/:id', CategoryController.deleteCategory);
-router.delete('/:id/subcategories/:subcategoryId', CategoryController.deleteSubcategory);
-router.put('/:id', CategoryController.updateCategory);
-router.put('/:id/subcategories/:subcategoryId', CategoryController.updateSubcategory);
+// Endpoint untuk mendapatkan satu kategori berdasarkan ID
+router.get('/:id', categoryController.getCategoryById);
+
+// Endpoint untuk mengupdate kategori berdasarkan ID
+router.put('/:id', categoryController.updateCategory);
+
+// Endpoint untuk menghapus kategori berdasarkan ID
+router.delete('/:id', categoryController.deleteCategory);
 
 module.exports = router;
