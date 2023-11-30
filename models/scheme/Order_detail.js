@@ -19,7 +19,9 @@ const orderSchema = new mongoose.Schema({
         alamat: {type: String, require: true}
     },
     total: {type: Number, require: true},
-    status: {type: String}
+    status: {type: String, enum : ['pending', 'paid', 'cancelled'], default : 'pending'},
+    shipping: {type: String},
+    shipping_address: {type: String}
 }, {timestamps: true})
 
 const Order_detail = mongoose.model('Order_detail', orderSchema);
