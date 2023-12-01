@@ -25,4 +25,20 @@ routes.use('/payment', paymentRoutes);
 const shippingRoutes = require('./shipping/shippingRoutes');
 routes.use('/shipping', shippingRoutes);
 
+//Route for penjualan
+const penjualanRoutes = require('./penjualan/index')
+routes.use('/penjualan', penjualanRoutes)
+
+// routes for settings
+const categoriesRoutes = require('./settings/categoryRoutes')
+routes.use('/settings/categories', categoriesRoutes)
+
+const rewardsRoutes  = require('./settings/rewardsRoutes')
+routes.use('/settings/rewards', rewardsRoutes)
+
+// Route for cart
+const cartRoutes = require('./cart/cartRoutes')
+routes.use('/cart', cartRoutes);
+
+
 module.exports=routes

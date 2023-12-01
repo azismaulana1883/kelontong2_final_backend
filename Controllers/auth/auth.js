@@ -325,7 +325,7 @@ async function Login(req, res, next) {
                     name: getUser[0].name,
                     user: getUser[0].email,
                     alamat: getUser[0].alamat,
-                    id: getUser[0].id,
+                    id: getUser[0]._id,
                     isVerified: getUser[0].isVerified,
                     role: getUser[0].role
                 };
