@@ -6,6 +6,7 @@ const orderController = require('../../Controllers/order/orderController');
 
 // route
 router.get('/', orderController.index);
+router.post('/create-order-from-cart', orderController.createOrderFromCart);
 router.post('/', orderController.store);
 router.get('/by-customer', orderController.getCountCustomer);
 router.get('/sold-products', orderController.getSoldProducts);

@@ -161,6 +161,25 @@ async function getMonthlySales(req, res) {
     }
 };
 
+async function createOrderFromCart(req, res) {
+    try {
+        const { products, customer, total, status, shipping, shipping_address } = req.body;
+        const order = new Order({
+            products,
+            customer,
+            total,
+            status,
+            shipping,
+            shipping_address,
+        });
+        const savedOrder = await order.save();
+        res.json({ orderId: savedOrder._id });
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
 module.exports = {
     index,
     store,
@@ -169,5 +188,6 @@ module.exports = {
     getCountCustomer,
     getSoldProducts,
     getLatestOrders,
-    getMonthlySales
+    getMonthlySales,
+    createOrderFromCart
 }

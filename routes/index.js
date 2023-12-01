@@ -14,7 +14,7 @@ const uploadRoutes = require('./upload/uploadRoutes');
 routes.use('/upload', uploadRoutes);
 
 //Route for Order
-const orderRoutes = require('./order')
+const orderRoutes = require('./order/orderRoutes')
 routes.use('/order', orderRoutes)
 
 // Route for checkout
