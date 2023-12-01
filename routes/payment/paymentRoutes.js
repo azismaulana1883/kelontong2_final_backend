@@ -29,7 +29,7 @@ router.post('/process-transactions', (req, res) => {
                 "first_name": req.body.name,
             },
             "callbacks": {
-                "finish": "https://kelontong-frontend.vercel.app/payment-success"
+                "finish": "https://kelontong-frontend.vercel.app"
             }
         };
 
