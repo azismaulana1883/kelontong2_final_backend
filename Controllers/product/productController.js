@@ -97,10 +97,25 @@ const deleteProductById = async (req, res) => {
         res.status(500).json({ code: 500, message: 'Internal Server Error', data: null });
     }
 };
+
+const getTotalProducts = async (req, res) => {
+    try {
+        const totalProducts = await Product.find().countDocuments();
+
+        res.status(200).json({
+            message: "Get total products",
+            total: totalProducts
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to retrieve total products' });
+    }
+}
+
 module.exports = {
     createProduct,
     getAllProducts,
     getProductById,
     updateProductById,
-    deleteProductById
+    deleteProductById,
+    getTotalProducts
 };
