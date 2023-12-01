@@ -3,6 +3,12 @@ const express = require('express');
 const router = express.Router();
 require('dotenv').config();
 
+// Middleware untuk menambahkan header kebijakan referensi terbatas
+router.use((req, res, next) => {
+  res.setHeader('Referrer-Policy', 'origin-when-cross-origin');
+  next();
+});
+
 // Controller
 const paymentController = require('../../Controllers/payment/paymentController');
 
