@@ -13,6 +13,10 @@ routes.use('/products', productRoutes);
 const uploadRoutes = require('./upload/uploadRoutes');
 routes.use('/upload', uploadRoutes);
 
+//Route for Order
+const orderRoutes = require('./order')
+routes.use('/order', orderRoutes)
+
 // Route for checkout
 const checkoutRoutes = require('./checkout/checkoutRoutes');
 routes.use('/checkout', checkoutRoutes);
