@@ -1,134 +1,123 @@
 // controllers/penjualan/penjualanController.js
+const OrderDetail = require('../../models/scheme/Order_detail');
+const Product = require('../../models/scheme/Product');
 
-// Contoh struktur objek untuk data order_details
-const orderDetailData = [
-  {
-    _id: "65649a723b3d021871868aed",
-    products: [
-      {
-        product_id: "655f0202a0df4ccd2f7fec18",
-        name: "beras mantap-mantap",
-        image: "https://image.dailymartazzahra.com/s3/productimages/webp/co37129/p1025083/w600-h600/bf472756-c5a8-4aa4-8176-039facfcde82.png",
-        category: "beras",
-        price: 17000,
-        qty: 2,
-        subtotal: 34000
-      }
-    ],
-    customer: {
-      customer_id: "655e0b8e95e2be68773e1c17",
-      name: "Annisa",
-      phone_number: "082213221253",
-      alamat: "Limo, depok"
-    },
-    total: 34000,
-    createdAt: "2023-11-27T03:28:46.538Z",
-    updatedAt: "2023-11-27T03:28:46.538Z"
-  }
-];
-
-// Controller untuk mendapatkan data transaksi
 async function getDataTransaksi(req, res) {
-  try {
-    // Mendapatkan parameter bulan dan tahun dari query
-    const { year, month } = req.query;
+    try {
+        const { year, month } = req.query;
 
-    // Menggunakan agregasi untuk menghitung data transaksi
-    const filteredData = orderDetailData
-      .filter(order => {
-        const orderDate = new Date(order.createdAt);
-        return (
-          (!year || orderDate.getFullYear() == year) &&
-          (!month || orderDate.getMonth() + 1 == month)
-        );
-      });
+        const filteredData = await OrderDetail.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(`${year}-${month}-01`),
+                        $lt: new Date(`${year}-${parseInt(month) + 1}-01`),
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    createdAt: 1,
+                    total: 1,
+                    products: 1,
+                },
+            },
+        ]);
 
-    // Jika tidak ada data yang cocok, kirim respons "Data tidak ditemukan"
-    if (filteredData.length === 0) {
-      return res.status(404).send({ 
-         message: 'Data tidak ditemukan',
-        success: false,
-        statusCode: 404
-    });
+        if (filteredData.length === 0) {
+            return res.status(404).send({
+                message: 'Data tidak ditemukan',
+                success: false,
+                statusCode: 404,
+            });
+        }
+
+        const result = filteredData.map((order) => ({
+            _id: order._id,
+            tanggal_transaksi: order.createdAt,
+            jumlah_penjualan: order.products.reduce(
+                (total, product) => total + product.subtotal,
+                0
+            ),
+            total_penjualan_rp: order.total,
+            jumlah_produk_terjual: order.products.reduce(
+                (total, product) => total + product.qty,
+                0
+            ),
+        }));
+
+        res.status(200).send({
+            message: 'Data ditemukan',
+            success: true,
+            statusCode: 200,
+            data: result,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error saat mengambil data transaksi.');
     }
-
-    const result = filteredData.map(order => ({
-      _id: order._id,
-      tanggal_transaksi: order.createdAt,
-      jumlah_penjualan: order.products.reduce((total, product) => total + product.subtotal, 0),
-      total_penjualan_rp: order.total,
-      jumlah_produk_terjual: order.products.reduce((total, product) => total + product.qty, 0)
-    }));
-
-    // Mengembalikan data transaksi sebagai respons
-    res.status(200).send({
-        message : "Data ditemukan",
-        sucess : true,
-        statusCode : 200,
-        data : result
-    })
-  } catch (error) {
-    // Menangani kesalahan dan memberikan respons yang sesuai
-    console.error(error);
-    res.status(500).send('Error saat mengambil data transaksi.');
-  }
 }
 
 async function getDataBarangTerjual(req, res) {
-  try {
-    // Mendapatkan parameter bulan dan tahun dari query
-    const { year, month } = req.query;
+    try {
+        const { year, month } = req.query;
 
-    // Menggunakan agregasi untuk menghitung data transaksi
-    const filteredData = orderDetailData
-      .filter(order => {
-        const orderDate = new Date(order.createdAt);
-        return (
-          (!year || orderDate.getFullYear() == year) &&
-          (!month || orderDate.getMonth() + 1 == month)
-        );
-      });
+        const filteredData = await OrderDetail.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(`${year}-${month}-01`),
+                        $lt: new Date(`${year}-${parseInt(month) + 1}-01`),
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    createdAt: 1,
+                    products: 1,
+                },
+            },
+        ]);
 
-    // Jika tidak ada data yang cocok, kirim respons "Data tidak ditemukan"
-    if (filteredData.length === 0) {
-      return res.status(200).send({ 
-         message: 'Data tidak ditemukan',
-         success: false,
-         statusCode: 200
-      });
+        if (filteredData.length === 0) {
+            return res.status(200).send({
+                message: 'Data tidak ditemukan',
+                success: false,
+                statusCode: 200,
+            });
+        }
+
+        const result = filteredData.map((order) => ({
+            _id: order._id,
+            tanggal_transaksi: order.createdAt,
+            barang_terjual: order.products.map((product) => ({
+                nama_barang: product.name,
+                kategori: product.category,
+                jumlah_terjual: product.qty,
+                total_penjualan_barang: product.subtotal,
+            })),
+        }));
+
+        res.status(200).send({
+            message: 'Data barang terjual ditemukan',
+            success: true,
+            statusCode: 200,
+            data: result,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            message: 'Terjadi kesalahan saat mengambil data barang terjual.',
+            success: false,
+            statusCode: 500,
+            error: error.message,
+        });
     }
-
-    const result = filteredData.map(order => ({
-      _id: order._id,
-      tanggal_transaksi: order.createdAt,
-      barang_terjual: order.products.map(product => ({
-        nama_barang: product.name,
-        kategori: product.category,
-        jumlah_terjual: product.qty,
-        total_penjualan_barang: product.qty * product.price
-      }))
-    }));
-
-    // Mengembalikan data barang terjual sebagai respons
-    res.status(200).send({
-        message: "Data barang terjual ditemukan",
-        success: true,
-        statusCode: 200,
-        data: result
-    });
-  } catch (error) {
-    // Menangani kesalahan dan memberikan respons yang sesuai
-    console.error(error);
-    res.status(500).send({ 
-      message: 'Terjadi kesalahan saat mengambil data barang terjual.',
-      success: false,
-      statusCode: 500,
-      error: error.message // Menyertakan pesan kesalahan spesifik jika tersedia
-    });
-  }
 }
 
 module.exports = {
-  getDataTransaksi,
-  getDataBarangTerjual
+    getDataTransaksi,
+    getDataBarangTerjual,
 };
