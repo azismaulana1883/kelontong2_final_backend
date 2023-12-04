@@ -19,23 +19,26 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Fungsi untuk mengirim email
 function sendEmail(mailOptions, successMessage, errorMessage, res) {
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.error(error);
-            return res.status(500).send({
-                message: errorMessage,
-                success: false,
-                statusCode: 500
-            });
+            if (res) {  // Pastikan res tidak undefined sebelum digunakan
+                return res.status(500).send({
+                    message: errorMessage,
+                    success: false,
+                    statusCode: 500
+                });
+            }
         } else {
             console.log('Email sent: ' + info.response);
-            return res.status(200).send({
-                message: successMessage,
-                success: true,
-                statusCode: 200
-            });
+            if (res) {  // Pastikan res tidak undefined sebelum digunakan
+                return res.status(200).send({
+                    message: successMessage,
+                    success: true,
+                    statusCode: 200
+                });
+            }
         }
     });
 }
