@@ -4,12 +4,16 @@ const JWT = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const UserModelsMongo = require('../../models/scheme/User');
 
-// Konfigurasi transporter untuk Nodemailer
+// Konfigurasi transporter untuk Nodemailer dengan SMTP Google (Gmail)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'indra.kurniawan1433@gmail.com',
         pass: 'ubpnqeblbwjmoipk'
+    },
+    secure: true, // Gunakan true karena Gmail menggunakan SSL/TLS
+    tls: {
+        rejectUnauthorized: false // Hanya gunakan ini jika server email Anda tidak memiliki sertifikat SSL yang valid
     }
 });
 
