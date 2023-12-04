@@ -19,7 +19,7 @@ app.get('/', (req,res) => {
 })
 
 app.listen(port, host, function() {
-    console.log(`Server is running in port : ${ port }`)
+    console.log(`Server is running in host and port : ${host},${ port }`)
 })
 
 // Routes
