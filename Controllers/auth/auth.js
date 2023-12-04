@@ -1,44 +1,35 @@
 const Cryptr = require('cryptr');
-const CryptrNew = new Cryptr('secret-key-access');https://github.com/azismaulana11/kelontong_backend/blob/master/Controllers/auth/auth.js
+const CryptrNew = new Cryptr('secret-key-access');
 const JWT = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const UserModelsMongo = require('../../models/scheme/User');
 
-// Konfigurasi transporter untuk Nodemailer dengan SMTP Google (Gmail)
+// Konfigurasi transporter untuk Nodemailer
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'indra.kurniawan1433@gmail.com',
         pass: 'ubpnqeblbwjmoipk'
-    },
-    debug:true,
-    port: 587,
-    secure: true, // Gunakan true karena Gmail menggunakan SSL/TLS
-    tls: {
-        rejectUnauthorized: false // Hanya gunakan ini jika server email Anda tidak memiliki sertifikat SSL yang valid
     }
 });
 
+// Fungsi untuk mengirim email
 function sendEmail(mailOptions, successMessage, errorMessage, res) {
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.error(error);
-            if (res) {  // Pastikan res tidak undefined sebelum digunakan
-                return res.status(500).send({
-                    message: errorMessage,
-                    success: false,
-                    statusCode: 500
-                });
-            }
+            return res.status(500).send({
+                message: errorMessage,
+                success: false,
+                statusCode: 500
+            });
         } else {
             console.log('Email sent: ' + info.response);
-            if (res) {  // Pastikan res tidak undefined sebelum digunakan
-                return res.status(200).send({
-                    message: successMessage,
-                    success: true,
-                    statusCode: 200
-                });
-            }
+            return res.status(200).send({
+                message: successMessage,
+                success: true,
+                statusCode: 200
+            });
         }
     });
 }
