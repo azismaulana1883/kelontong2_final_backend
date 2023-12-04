@@ -1,5 +1,5 @@
 const Cryptr = require('cryptr');
-const CryptrNew = new Cryptr('secret-key-access');
+const CryptrNew = new Cryptr('secret-key-access');https://github.com/azismaulana11/kelontong_backend/blob/master/Controllers/auth/auth.js
 const JWT = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const UserModelsMongo = require('../../models/scheme/User');
@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
         pass: 'ubpnqeblbwjmoipk'
     },
     debug:true,
-    port: 587,
+    port: 465,
     secure: true, // Gunakan true karena Gmail menggunakan SSL/TLS
     tls: {
         rejectUnauthorized: false // Hanya gunakan ini jika server email Anda tidak memiliki sertifikat SSL yang valid
