@@ -19,7 +19,7 @@ function sendVerificationEmail(email, verificationToken) {
         from: 'indra.kurniawan1433@gmail.com',
         to: email,
         subject: 'Email Verification',
-        text: `Click the following link to verify your email: http://localhost:7600/api/v1/auth/verify?email=${email}&token=${verificationToken}`
+        text: `Click the following link to verify your email: https://wild-rose-python-wig.cyclic.app/api/v1/auth/verify?email=${email}&token=${verificationToken}`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -37,7 +37,7 @@ function sendResetPasswordEmail(email, resetPasswordToken) {
         from: 'indra.kurniawan1433@gmail.com',
         to: email,
         subject: 'Reset Password',
-        text: `Click the following link to reset your password: http://localhost:5173/reset-password?email=${email}&token=${resetPasswordToken}`
+        text: `Click the following link to reset your password: https://kelontong-frontend.vercel.app/reset-password?email=${email}&token=${resetPasswordToken}`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
