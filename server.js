@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000;
+const host = "0.0.0.0";
 const cors = require('cors')
 const morgan = require('morgan')
 
@@ -17,7 +18,7 @@ app.get('/', (req,res) => {
     })
 })
 
-app.listen(port, "0.0.0.0", function() {
+app.listen(port, host, function() {
     console.log(`Server is running in port : ${ port }`)
 })
 
