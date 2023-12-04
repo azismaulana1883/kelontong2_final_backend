@@ -13,8 +13,29 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Fungsi untuk mengirim email
+function sendEmail(mailOptions, successMessage, errorMessage, res) {
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error(error);
+            return res.status(500).send({
+                message: errorMessage,
+                success: false,
+                statusCode: 500
+            });
+        } else {
+            console.log('Email sent: ' + info.response);
+            return res.status(200).send({
+                message: successMessage,
+                success: true,
+                statusCode: 200
+            });
+        }
+    });
+}
+
 // Fungsi untuk mengirim email verifikasi
-function sendVerificationEmail(email, verificationToken) {
+function sendVerificationEmail(email, verificationToken, res) {
     const mailOptions = {
         from: 'indra.kurniawan1433@gmail.com',
         to: email,
@@ -22,17 +43,11 @@ function sendVerificationEmail(email, verificationToken) {
         text: `Click the following link to verify your email: https://wild-rose-python-wig.cyclic.app/api/v1/auth/verify?email=${email}&token=${verificationToken}`
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
+    sendEmail(mailOptions, 'Verification email sent successfully', 'Failed to send verification email', res);
 }
 
 // Fungsi untuk mengirim email reset password
-function sendResetPasswordEmail(email, resetPasswordToken) {
+function sendResetPasswordEmail(email, resetPasswordToken, res) {
     const mailOptions = {
         from: 'indra.kurniawan1433@gmail.com',
         to: email,
@@ -40,13 +55,7 @@ function sendResetPasswordEmail(email, resetPasswordToken) {
         text: `Click the following link to reset your password: https://kelontong-frontend.vercel.app/reset-password?email=${email}&token=${resetPasswordToken}`
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error(error);
-        } else {
-            console.log('Reset password email sent: ' + info.response);
-        }
-    });
+    sendEmail(mailOptions, 'Reset password email sent successfully', 'Failed to send reset password email', res);
 }
 
 // Fungsi untuk membuat waktu kedaluwarsa reset password
