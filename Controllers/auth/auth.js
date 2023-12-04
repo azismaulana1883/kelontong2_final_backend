@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
         pass: 'ubpnqeblbwjmoipk'
     },
     debug:true,
-    port: 465,
+    port: 587,
     secure: true, // Gunakan true karena Gmail menggunakan SSL/TLS
     tls: {
         rejectUnauthorized: false // Hanya gunakan ini jika server email Anda tidak memiliki sertifikat SSL yang valid
